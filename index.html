@@ -79,4 +79,11 @@
     bottomText.addEventListener('input', drawCanvas);
 
     save.addEventListener('click', () => {
-      const link = docum
+      const link = document.createElement('a');
+      link.download = 'meme.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+  </script>
+</body>
+</html>
