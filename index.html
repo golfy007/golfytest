@@ -37,7 +37,7 @@
     const upload = document.getElementById('upload');
 
     let baseImage = new Image();
-    baseImage.src = 'images/default-image.png'; // ใช้ภาพพื้นฐาน
+    baseImage.src = 'images/default-image.png.jpg'; // ใช้ภาพพื้นฐาน
 
     let userImage = new Image();
     let userImageLoaded = false;
@@ -79,11 +79,4 @@
     bottomText.addEventListener('input', drawCanvas);
 
     save.addEventListener('click', () => {
-      const link = document.createElement('a');
-      link.download = 'meme.png';
-      link.href = canvas.toDataURL();
-      link.click();
-    });
-  </script>
-</body>
-</html>
+      const link = docum
