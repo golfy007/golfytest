@@ -20,6 +20,7 @@
 </head>
 <body>
   <h1>Meme Maker</h1>
+  <input type="file" id="upload" accept="image/*">
   <canvas id="canvas" width="500" height="500"></canvas>
   <div id="controls">
     <input type="text" id="topText" placeholder="Top Text">
@@ -33,17 +34,36 @@
     const topText = document.getElementById('topText');
     const bottomText = document.getElementById('bottomText');
     const save = document.getElementById('save');
+    const upload = document.getElementById('upload');
 
-    let image = new Image();
-    image.src = 'images/default-image.png.jpg'; // ใช้ภาพพื้นฐาน
+    let baseImage = new Image();
+    baseImage.src = 'images/default-image.png'; // ใช้ภาพพื้นฐาน
 
-    image.onload = () => {
-      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    let userImage = new Image();
+    let userImageLoaded = false;
+
+    baseImage.onload = () => {
+      drawCanvas();
     };
 
-    function drawText() {
+    upload.addEventListener('change', (e) => {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        userImage.onload = () => {
+          userImageLoaded = true;
+          drawCanvas();
+        }
+        userImage.src = event.target.result;
+      }
+      reader.readAsDataURL(e.target.files[0]);
+    });
+
+    function drawCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+      if (userImageLoaded) {
+        ctx.drawImage(userImage, 0, 0, canvas.width, canvas.height);
+      }
       ctx.font = '30px Impact';
       ctx.textAlign = 'center';
       ctx.fillStyle = 'white';
@@ -55,8 +75,8 @@
       ctx.strokeText(bottomText.value, canvas.width / 2, canvas.height - 20);
     }
 
-    topText.addEventListener('input', drawText);
-    bottomText.addEventListener('input', drawText);
+    topText.addEventListener('input', drawCanvas);
+    bottomText.addEventListener('input', drawCanvas);
 
     save.addEventListener('click', () => {
       const link = document.createElement('a');
