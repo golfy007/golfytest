@@ -65,6 +65,8 @@
     let userImageWidth = 500;
     let userImageHeight = 500;
     let dragging = false;
+    let initialDistance = null;
+    let initialScale = 1;
 
     baseImage.onload = () => {
       drawCanvas();
@@ -135,6 +137,55 @@
     canvas.addEventListener('mouseup', () => {
       dragging = false;
     });
+
+    canvas.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        initialDistance = getDistance(e.touches[0], e.touches[1]);
+        initialScale = userImageWidth / canvas.width;
+      } else {
+        const rect = canvas.getBoundingClientRect();
+        const touchX = e.touches[0].clientX - rect.left;
+        const touchY = e.touches[0].clientY - rect.top;
+        if (
+          touchX >= userImageX &&
+          touchX <= userImageX + userImageWidth &&
+          touchY >= userImageY &&
+          touchY <= userImageY + userImageHeight
+        ) {
+          dragging = true;
+        }
+      }
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      if (e.touches.length === 2 && initialDistance !== null) {
+        const currentDistance = getDistance(e.touches[0], e.touches[1]);
+        const scale = currentDistance / initialDistance;
+        userImageWidth = canvas.width * initialScale * scale;
+        userImageHeight = canvas.height * initialScale * scale;
+        drawCanvas();
+      } else if (dragging) {
+        userImageX = e.touches[0].clientX - rect.left - userImageWidth / 2;
+        userImageY = e.touches[0].clientY - rect.top - userImageHeight / 2;
+        drawCanvas();
+      }
+    });
+
+    canvas.addEventListener('touchend', (e) => {
+      dragging = false;
+      if (e.touches.length < 2) {
+        initialDistance = null;
+      }
+    });
+
+    function getDistance(touch1, touch2) {
+      return Math.sqrt(
+        Math.pow(touch2.clientX - touch1.clientX, 2) +
+        Math.pow(touch2.clientY - touch1.clientY, 2)
+      );
+    }
 
     canvas.addEventListener('wheel', (e) => {
       if (userImageLoaded) {
