@@ -12,9 +12,12 @@
     }
     canvas {
       border: 1px solid black;
+      position: absolute;
+      top: 0;
+      left: 0;
     }
     #controls {
-      margin-top: 20px;
+      margin-top: 520px;
     }
   </style>
 </head>
@@ -42,6 +45,12 @@
     let userImage = new Image();
     let userImageLoaded = false;
 
+    let userImageX = 0;
+    let userImageY = 0;
+    let userImageWidth = 500;
+    let userImageHeight = 500;
+    let dragging = false;
+
     baseImage.onload = () => {
       drawCanvas();
     };
@@ -62,7 +71,7 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
       if (userImageLoaded) {
-        ctx.drawImage(userImage, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(userImage, userImageX, userImageY, userImageWidth, userImageHeight);
       }
       ctx.font = '30px Impact';
       ctx.textAlign = 'center';
@@ -83,6 +92,43 @@
       link.download = 'meme.png';
       link.href = canvas.toDataURL();
       link.click();
+    });
+
+    canvas.addEventListener('mousedown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      if (
+        mouseX >= userImageX &&
+        mouseX <= userImageX + userImageWidth &&
+        mouseY >= userImageY &&
+        mouseY <= userImageY + userImageHeight
+      ) {
+        dragging = true;
+      }
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (dragging) {
+        const rect = canvas.getBoundingClientRect();
+        userImageX = e.clientX - rect.left - userImageWidth / 2;
+        userImageY = e.clientY - rect.top - userImageHeight / 2;
+        drawCanvas();
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      dragging = false;
+    });
+
+    canvas.addEventListener('wheel', (e) => {
+      if (userImageLoaded) {
+        e.preventDefault();
+        const zoom = e.deltaY > 0 ? 0.9 : 1.1;
+        userImageWidth *= zoom;
+        userImageHeight *= zoom;
+        drawCanvas();
+      }
     });
   </script>
 </body>
